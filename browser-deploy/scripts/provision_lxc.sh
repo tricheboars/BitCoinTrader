@@ -66,7 +66,7 @@ cp "${DEPLOY_DIR}/browser-deploy/nginx/bitcointrader.conf" \
 ln -sf /etc/nginx/sites-available/bitcointrader \
        /etc/nginx/sites-enabled/bitcointrader
 rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl enable --now nginx
+nginx -t && systemctl enable nginx && systemctl restart nginx
 
 # ── systemd service ───────────────────────────────────────────────────────────
 cp "${DEPLOY_DIR}/browser-deploy/systemd/bitcointrader.service" \
