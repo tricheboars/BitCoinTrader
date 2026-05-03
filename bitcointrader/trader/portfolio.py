@@ -1,6 +1,7 @@
 """Portfolio — cash, positions, cost basis, greed meter."""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 
@@ -18,6 +19,8 @@ class Portfolio:
     greed: int = 0
 
     def buy(self, ticker: str, dollars: float, price: float) -> str:
+        if not math.isfinite(dollars):
+            return "amount must be a finite number."
         if dollars <= 0:
             return "amount must be positive."
         if dollars > self.cash:
@@ -39,6 +42,8 @@ class Portfolio:
         if ticker not in self.positions:
             return f"NO POSITION IN {ticker}."
         pos = self.positions[ticker]
+        if not math.isfinite(shares):
+            return "amount must be a finite number."
         if shares <= 0:
             return "amount must be positive."
         if shares > pos.shares + 1e-9:
