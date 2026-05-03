@@ -1,0 +1,7 @@
+ticker: $BTCN
+name: BitCorn
+starting_price: 1.00
+drift: 0.0
+volatility: 0.10
+flavor: HIGH
+description: cheap, volatile, smells like cereal

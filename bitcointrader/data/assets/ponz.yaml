@@ -1,0 +1,7 @@
+ticker: $PONZ
+name: Ponzi Capital
+starting_price: 13.37
+drift: 0.05
+volatility: 0.10
+flavor: SUSPECT
+description: the returns are guaranteed (returns not guaranteed)

@@ -1,0 +1,7 @@
+ticker: $RUGZ
+name: Rug Pull LLC
+starting_price: 1.00
+drift: -0.10
+volatility: 0.50
+flavor: OOF
+description: the rug is a feature, not a bug

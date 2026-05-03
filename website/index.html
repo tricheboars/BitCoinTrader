@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>$ BitCoinTrader $</title>
+<style>
+  :root {
+    --bg: #050505;
+    --bg-panel: #0b0b0b;
+    --green: #00ff41;
+    --green-dim: #009f29;
+    --red: #ff3333;
+    --amber: #ffaa00;
+    --grey: #444;
+    --muted: #666;
+    --text: #c8ffd0;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "JetBrains Mono", "Fira Mono", "Consolas", "Monaco", monospace;
+    font-size: 13px; line-height: 1.4;
+    overflow: hidden;
+  }
+  body { display: flex; flex-direction: column; }
+
+  /* CRT scanline overlay */
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 255, 65, 0.03) 0,
+      rgba(0, 255, 65, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none; z-index: 1000;
+  }
+
+  /* Ticker tape */
+  #tape {
+    background: #000;
+    border-bottom: 1px solid var(--green-dim);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 4px 0;
+    color: var(--green);
+    font-weight: bold;
+    flex: 0 0 auto;
+  }
+  #tape-track {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll 60s linear infinite;
+  }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100%); }
+  }
+  .tk { margin-right: 24px; }
+  .tk .up   { color: var(--green); }
+  .tk .down { color: var(--red); }
+  .tk .name { color: var(--text); }
+
+  /* News wire */
+  #wire {
+    background: #110000;
+    border-bottom: 1px solid var(--red);
+    color: var(--amber);
+    padding: 4px 12px;
+    min-height: 22px;
+    font-weight: bold;
+    flex: 0 0 auto;
+    transition: background 0.4s ease;
+  }
+  #wire.flash {
+    background: #2a0000;
+    color: var(--red);
+    animation: flash 1s ease-out;
+  }
+  @keyframes flash {
+    0%   { background: #6a0000; color: #fff; }
+    100% { background: #110000; color: var(--amber); }
+  }
+
+  /* Layout */
+  #layout {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+  }
+
+  #term-wrap {
+    flex: 1 1 auto;
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--green-dim);
+    min-width: 0;
+  }
+
+  #scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 12px 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #scroll::-webkit-scrollbar { width: 8px; }
+  #scroll::-webkit-scrollbar-track { background: var(--bg); }
+  #scroll::-webkit-scrollbar-thumb { background: var(--green-dim); }
+
+  .out { color: var(--text); }
+  .echo { color: var(--green); }
+  .echo::before { content: "❯ "; color: var(--green-dim); }
+  .err { color: var(--red); }
+  .news-line { color: var(--amber); font-weight: bold; }
+  .ending {
+    color: var(--green);
+    text-shadow: 0 0 8px var(--green);
+    font-weight: bold;
+    margin: 16px 0;
+  }
+  .ending.bad { color: var(--red); text-shadow: 0 0 8px var(--red); }
+
+  /* Prompt */
+  #prompt-row {
+    display: flex; align-items: center;
+    border-top: 1px solid var(--green-dim);
+    padding: 6px 12px;
+    background: #000;
+    flex: 0 0 auto;
+  }
+  #prompt {
+    color: var(--green-dim);
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  #prompt b { color: var(--green); }
+  #cmd {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--green); font-family: inherit; font-size: inherit;
+    caret-color: var(--green);
+  }
+
+  /* HUD */
+  #hud {
+    flex: 0 0 320px;
+    background: var(--bg-panel);
+    overflow-y: auto;
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+  #hud h2 {
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin: 0 0 6px 0;
+    border-bottom: 1px solid var(--green-dim);
+    padding-bottom: 3px;
+    text-transform: uppercase;
+  }
+  #hud section { margin-bottom: 14px; }
+  .row { display: flex; justify-content: space-between; margin: 2px 0; }
+  .row .l { color: var(--muted); }
+  .row .v { color: var(--green); }
+  .greed-bar {
+    background: #111; height: 10px; margin-top: 4px;
+    border: 1px solid var(--grey); position: relative;
+  }
+  .greed-fill {
+    height: 100%; background: var(--green);
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+  .pos-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+    font-size: 11px;
+    margin: 2px 0;
+  }
+  .pos-row .t { color: var(--green); }
+  .pos-row .pnl-up { color: var(--green); }
+  .pos-row .pnl-down { color: var(--red); }
+  .pos-empty { color: var(--muted); font-style: italic; }
+
+  .market-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+    margin: 1px 0;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .market-row:hover { background: #001a00; }
+  .market-row .t { color: var(--green); }
+  .market-row .p.up { color: var(--green); }
+  .market-row .p.down { color: var(--red); }
+  .market-row .p.flat { color: var(--text); }
+
+  /* Status bar */
+  #statusbar {
+    flex: 0 0 auto;
+    background: #000;
+    border-top: 1px solid var(--green-dim);
+    color: var(--muted);
+    font-size: 11px;
+    padding: 3px 12px;
+    display: flex; justify-content: space-between;
+  }
+  #statusbar .ok { color: var(--green); }
+  #statusbar .bad { color: var(--red); }
+
+  /* Modal endings */
+  #ending-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 999;
+  }
+  #ending-modal.show { display: flex; }
+  #ending-modal pre {
+    color: var(--green);
+    text-shadow: 0 0 10px var(--green);
+    font-size: 14px;
+  }
+  #ending-modal.bad pre {
+    color: var(--red);
+    text-shadow: 0 0 10px var(--red);
+  }
+</style>
+</head>
+<body>
+
+<div id="tape"><div id="tape-track">loading…</div></div>
+<div id="wire">[ MARKET OPEN ]   greed is good.   the phone is ringing.</div>
+
+<div id="layout">
+  <div id="term-wrap">
+    <div id="scroll"></div>
+    <div id="prompt-row">
+      <span id="prompt">┌─[<b>trader@wallst</b>]─[<span id="p-cash">$10,000.00</span>]─[<span id="p-mood">BULL</span>]─❯</span>
+      <input id="cmd" autocomplete="off" autofocus spellcheck="false">
+    </div>
+  </div>
+
+  <div id="hud">
+    <section>
+      <h2>WALLET</h2>
+      <div class="row"><span class="l">CASH</span><span class="v" id="h-cash">$10,000.00</span></div>
+      <div class="row"><span class="l">NET WORTH</span><span class="v" id="h-value">$10,000.00</span></div>
+      <div class="row"><span class="l">GREED</span><span class="v" id="h-greed">0/100</span></div>
+      <div class="greed-bar"><div class="greed-fill" id="h-greed-bar" style="width:0%"></div></div>
+    </section>
+    <section>
+      <h2>MARKET</h2>
+      <div id="h-market"></div>
+    </section>
+    <section>
+      <h2>POSITIONS</h2>
+      <div id="h-positions"><div class="pos-empty">(none — go BUY something)</div></div>
+    </section>
+  </div>
+</div>
+
+<div id="statusbar">
+  <span>BitCoinTrader v0.0.1 · single-player · greed=good</span>
+  <span id="conn-status" class="bad">DISCONNECTED</span>
+</div>
+
+<div id="ending-modal"><pre id="ending-text"></pre></div>
+
+<script>
+(() => {
+  const scroll = document.getElementById("scroll");
+  const cmdInput = document.getElementById("cmd");
+  const tape = document.getElementById("tape-track");
+  const wire = document.getElementById("wire");
+  const connStatus = document.getElementById("conn-status");
+  const pCash = document.getElementById("p-cash");
+  const pMood = document.getElementById("p-mood");
+  const hCash = document.getElementById("h-cash");
+  const hValue = document.getElementById("h-value");
+  const hGreed = document.getElementById("h-greed");
+  const hGreedBar = document.getElementById("h-greed-bar");
+  const hMarket = document.getElementById("h-market");
+  const hPositions = document.getElementById("h-positions");
+  const endingModal = document.getElementById("ending-modal");
+  const endingText = document.getElementById("ending-text");
+
+  const $ = (n) => Number(n).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const $$ = (n) => "$" + $(n);
+  const fmtPrice = (n) => "$" + Number(n).toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4});
+
+  let prevPrices = {};
+  let assets = {};
+  let history = [];
+  let histIdx = -1;
+
+  function append(text, cls) {
+    const div = document.createElement("div");
+    div.className = cls || "out";
+    div.textContent = text;
+    scroll.appendChild(div);
+    scroll.scrollTop = scroll.scrollHeight;
+  }
+
+  function renderTape(prices) {
+    const parts = [];
+    for (const [ticker, price] of Object.entries(prices)) {
+      const prev = prevPrices[ticker];
+      let arrow = "•", cls = "name";
+      if (prev !== undefined) {
+        if (price > prev * 1.0001) { arrow = "▲"; cls = "up"; }
+        else if (price < prev * 0.9999) { arrow = "▼"; cls = "down"; }
+      }
+      parts.push(`<span class="tk"><span class="name">${ticker}</span> <span class="${cls}">${arrow} $${Number(price).toFixed(price < 1 ? 4 : 2)}</span></span>`);
+    }
+    tape.innerHTML = parts.join("") + parts.join("");
+  }
+
+  function renderMarket(prices) {
+    const rows = [];
+    for (const [ticker, price] of Object.entries(prices)) {
+      const prev = prevPrices[ticker];
+      let cls = "flat", arrow = "•";
+      if (prev !== undefined) {
+        if (price > prev * 1.0001) { cls = "up"; arrow = "▲"; }
+        else if (price < prev * 0.9999) { cls = "down"; arrow = "▼"; }
+      }
+      rows.push(`<div class="market-row" data-ticker="${ticker}">
+        <span class="t">${ticker}</span>
+        <span class="p ${cls}">${arrow}</span>
+        <span class="p ${cls}">$${Number(price).toFixed(price < 1 ? 4 : 2)}</span>
+      </div>`);
+    }
+    hMarket.innerHTML = rows.join("");
+    hMarket.querySelectorAll(".market-row").forEach(el => {
+      el.addEventListener("click", () => {
+        cmdInput.value = `buy ${el.dataset.ticker} `;
+        cmdInput.focus();
+      });
+    });
+  }
+
+  function renderPositions(positions, prices) {
+    const tickers = Object.keys(positions);
+    if (tickers.length === 0) {
+      hPositions.innerHTML = `<div class="pos-empty">(none — go BUY something)</div>`;
+      return;
+    }
+    const rows = tickers.map(t => {
+      const pos = positions[t];
+      const cur = prices[t] ?? 0;
+      const value = pos.shares * cur;
+      const cost = pos.shares * pos.cost_basis;
+      const pnl = value - cost;
+      const pnlCls = pnl >= 0 ? "pnl-up" : "pnl-down";
+      const pnlSign = pnl >= 0 ? "+" : "";
+      return `<div class="pos-row">
+        <span class="t">${t}</span>
+        <span>${$(pos.shares)}</span>
+        <span class="${pnlCls}">${pnlSign}${$(pnl)}</span>
+      </div>`;
+    });
+    hPositions.innerHTML = rows.join("");
+  }
+
+  function flashWire(text) {
+    wire.textContent = text;
+    wire.classList.remove("flash");
+    void wire.offsetWidth;
+    wire.classList.add("flash");
+  }
+
+  let curPrices = {};
+  let curPositions = {};
+
+  function handle(msg) {
+    switch (msg.type) {
+      case "out":
+        append(msg.text, "out");
+        break;
+      case "snapshot":
+        assets = msg.assets;
+        curPrices = msg.prices;
+        prevPrices = {...msg.prices};
+        renderTape(msg.prices);
+        renderMarket(msg.prices);
+        break;
+      case "tick":
+        renderTape(msg.prices);
+        renderMarket(msg.prices);
+        renderPositions(curPositions, msg.prices);
+        prevPrices = {...curPrices};
+        curPrices = msg.prices;
+        break;
+      case "news":
+        flashWire(msg.headline);
+        append(msg.headline, "news-line");
+        break;
+      case "state":
+        hCash.textContent = $$(msg.cash);
+        hValue.textContent = $$(msg.value);
+        hGreed.textContent = `${msg.greed}/100`;
+        hGreedBar.style.width = msg.greed + "%";
+        hGreedBar.style.background = msg.greed > 75 ? "var(--red)" : msg.greed > 40 ? "var(--amber)" : "var(--green)";
+        pCash.textContent = $$(msg.value);
+        pMood.textContent = msg.value >= 100000 ? "SHARK" : msg.value >= 25000 ? "BULL" : msg.value < 5000 ? "BEAR" : "PLAYER";
+        curPositions = msg.positions;
+        renderPositions(msg.positions, curPrices);
+        break;
+      case "clear":
+        scroll.innerHTML = "";
+        break;
+      case "ending":
+        endingText.textContent = msg.message;
+        endingModal.classList.add("show");
+        if (msg.kind === "margin_call") endingModal.classList.add("bad");
+        cmdInput.disabled = true;
+        break;
+    }
+  }
+
+  function connect() {
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
+    const ws = new WebSocket(`${proto}//${location.host}/ws`);
+    ws.onopen = () => { connStatus.textContent = "CONNECTED"; connStatus.className = "ok"; };
+    ws.onclose = () => {
+      connStatus.textContent = "DISCONNECTED";
+      connStatus.className = "bad";
+      setTimeout(connect, 2000);
+    };
+    ws.onerror = () => { connStatus.textContent = "ERROR"; connStatus.className = "bad"; };
+    ws.onmessage = (ev) => {
+      try { handle(JSON.parse(ev.data)); }
+      catch (e) { console.error(e, ev.data); }
+    };
+    window._ws = ws;
+  }
+
+  cmdInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const cmd = cmdInput.value.trim();
+      if (!cmd) return;
+      append(cmd, "echo");
+      if (window._ws && window._ws.readyState === WebSocket.OPEN) {
+        window._ws.send(JSON.stringify({type: "cmd", cmd}));
+      } else {
+        append("(disconnected — try again in a moment)", "err");
+      }
+      history.push(cmd);
+      histIdx = history.length;
+      cmdInput.value = "";
+    } else if (e.key === "ArrowUp") {
+      if (histIdx > 0) { histIdx--; cmdInput.value = history[histIdx]; }
+      e.preventDefault();
+    } else if (e.key === "ArrowDown") {
+      if (histIdx < history.length - 1) { histIdx++; cmdInput.value = history[histIdx]; }
+      else { histIdx = history.length; cmdInput.value = ""; }
+      e.preventDefault();
+    }
+  });
+
+  endingModal.addEventListener("click", () => {
+    endingModal.classList.remove("show");
+  });
+
+  connect();
+})();
+</script>
+</body>
+</html>

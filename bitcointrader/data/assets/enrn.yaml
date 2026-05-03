@@ -1,0 +1,7 @@
+ticker: $ENRN
+name: Enron Reborn
+starting_price: 3.50
+drift: -0.03
+volatility: 0.40
+flavor: EXTREME
+description: "we have a great accounting department"

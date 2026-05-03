@@ -1,0 +1,7 @@
+ticker: $MUSK
+name: Eccentric Billionaire Inc
+starting_price: 420.00
+drift: 0.02
+volatility: 0.40
+flavor: EXTREME
+description: swings ±400% on a single tweet

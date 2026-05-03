@@ -1,0 +1,21 @@
+[Unit]
+Description=BitCoinTrader — gag finance trading game
+After=network.target
+
+[Service]
+Type=simple
+User=bitcointrader
+WorkingDirectory=/opt/bitcointrader/repo
+ExecStart=/opt/bitcointrader/repo/.venv/bin/python -m bitcointrader.main \
+  --host 127.0.0.1 --port 8080 --tick-ms 5000
+Restart=on-failure
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/bitcointrader/repo
+
+[Install]
+WantedBy=multi-user.target

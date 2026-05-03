@@ -1,0 +1,7 @@
+ticker: $GMSTNK
+name: GameStonk
+starting_price: 0.50
+drift: 0.0
+volatility: 0.05
+flavor: LOW
+description: diamond hands optional, recommended

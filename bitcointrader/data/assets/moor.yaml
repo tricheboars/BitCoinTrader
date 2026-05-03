@@ -1,0 +1,7 @@
+ticker: $MOOR
+name: MooreLab Industries
+starting_price: 4.20
+drift: 0.01
+volatility: 0.03
+flavor: LOW
+description: suspiciously stable, probably insider trading

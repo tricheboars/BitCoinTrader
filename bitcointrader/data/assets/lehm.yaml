@@ -1,0 +1,7 @@
+ticker: $LEHM
+name: Lehman Holdings
+starting_price: 2.00
+drift: -0.02
+volatility: 0.15
+flavor: HIGH
+description: high bankruptcy risk (it's in the name)

@@ -1,0 +1,90 @@
+events:
+  - template: "[BREAKING] ELON TWEETS ABOUT $TICKER"
+    ticker_pool: ["$MUSK", "$DOGE2", "$BTCN"]
+    impact_min: 1.5
+    impact_max: 5.0
+
+  - template: "[BREAKING] SEC OPENS PROBE INTO $TICKER"
+    ticker_pool: random
+    impact_min: 0.2
+    impact_max: 0.5
+
+  - template: "[BREAKING] TULIP MANIA RETURNS"
+    ticker_pool: ["$TULP"]
+    impact_min: 5.0
+    impact_max: 20.0
+
+  - template: "[BREAKING] CEO OF $TICKER CAUGHT WITH MISTRESS"
+    ticker_pool: random
+    impact_min: 0.4
+    impact_max: 0.7
+
+  - template: "[BREAKING] FED CUTS RATES TO -3%"
+    ticker_pool: all
+    impact_min: 1.10
+    impact_max: 1.30
+
+  - template: "[BREAKING] $TICKER RUG PULLED"
+    ticker_pool: ["$RUGZ"]
+    impact_min: 0.01
+    impact_max: 0.10
+
+  - template: "[BREAKING] BITCOIN HALVING (REAL THIS TIME)"
+    ticker_pool: ["$BTCN"]
+    impact_min: 1.5
+    impact_max: 3.0
+
+  - template: "[BREAKING] $TICKER ANNOUNCES STOCK SPLIT"
+    ticker_pool: random
+    impact_min: 1.10
+    impact_max: 1.40
+
+  - template: "[BREAKING] $TICKER DELISTED FROM EXCHANGE"
+    ticker_pool: random
+    impact_min: 0.10
+    impact_max: 0.30
+
+  - template: "[BREAKING] DOGE COMMUNITY ORGANIZES PUMP"
+    ticker_pool: ["$DOGE2"]
+    impact_min: 1.5
+    impact_max: 4.0
+
+  - template: "[BREAKING] $TICKER ANNOUNCES METAVERSE PIVOT"
+    ticker_pool: random
+    impact_min: 0.7
+    impact_max: 1.5
+
+  - template: "[BREAKING] PONZI SCHEME RUMORS SURROUND $TICKER"
+    ticker_pool: ["$PONZ"]
+    impact_min: 0.30
+    impact_max: 0.60
+
+  - template: "[BREAKING] $TICKER REBRANDS AS AI COMPANY"
+    ticker_pool: random
+    impact_min: 1.20
+    impact_max: 2.50
+
+  - template: "[BREAKING] WHISTLEBLOWER LEAKS DOCS ON $TICKER"
+    ticker_pool: random
+    impact_min: 0.30
+    impact_max: 0.60
+
+  - template: "[BREAKING] $TICKER CEO GOES ON CNBC, SAYS NOTHING"
+    ticker_pool: random
+    impact_min: 0.90
+    impact_max: 1.10
+
+  - template: "[BREAKING] $TICKER HALTED PENDING NEWS"
+    ticker_pool: random
+    impact_min: 0.50
+    impact_max: 1.50
+
+  - template: "[BREAKING] WALLSTREETBETS ROTATES INTO $TICKER"
+    ticker_pool: random
+    impact_min: 1.50
+    impact_max: 6.00
+
+  - template: "[BREAKING] BERKSHIRE QUIETLY DUMPS $TICKER"
+    ticker_pool: random
+    impact_min: 0.40
+    impact_max: 0.80

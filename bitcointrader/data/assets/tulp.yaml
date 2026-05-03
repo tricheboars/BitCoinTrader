@@ -1,0 +1,7 @@
+ticker: $TULP
+name: Tulip Futures
+starting_price: 0.10
+drift: -0.01
+volatility: 0.30
+flavor: INSANE
+description: has historical precedent for collapse
