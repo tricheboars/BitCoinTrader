@@ -4,6 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>$ BitCoinTrader $</title>
+<meta name="description" content="Gag finance terminal — WSB meets Wall Street. Trade fake tickers, dodge margin calls, get rugged. Greed climbs with every trade.">
+<!-- Open Graph -->
+<meta property="og:title" content="$ BitCoinTrader $">
+<meta property="og:description" content="WSB meets Wall Street. A fake finance terminal where you cannot pause and the phone is already ringing.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bitcointrader.moorelab.cloud/">
+<meta property="og:image" content="https://bitcointrader.moorelab.cloud/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="$ BitCoinTrader $">
+<meta name="twitter:description" content="WSB meets Wall Street. A fake finance terminal.">
+<meta name="twitter:image" content="https://bitcointrader.moorelab.cloud/og-card.jpg">
+<!-- Favicons -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" type="image/png" href="/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/favicon-180.png">
+<meta name="theme-color" content="#050505">
 <style>
   :root {
     --bg: #050505;
@@ -230,6 +249,42 @@
   #ending-modal.bad pre {
     color: var(--red);
     text-shadow: 0 0 10px var(--red);
+  }
+
+  /* ─── MOBILE / NARROW VIEWPORTS ─────────────────────────
+     Was unstyled — body was overflow:hidden with a 320px fixed
+     HUD that ate the whole phone viewport, leaving the terminal
+     squashed into ~70px with no scroll. Stack vertically below
+     720px, let the page scroll. */
+  @media (max-width: 720px) {
+    html, body { overflow: auto; height: auto; }
+    body { min-height: 100vh; }
+    #layout {
+      flex-direction: column;
+      min-height: 0;
+    }
+    #term-wrap {
+      flex: 0 0 auto;
+      border-right: 0;
+      border-bottom: 1px solid var(--green-dim);
+      min-height: 60vh;
+    }
+    #scroll {
+      max-height: 50vh;
+      padding: 10px 12px;
+    }
+    #hud {
+      flex: 0 0 auto;
+      width: 100%;
+      max-height: none;
+      padding: 12px;
+    }
+    #prompt-row { padding: 6px 10px; }
+    #prompt { font-size: 11px; }
+    .pos-row, .market-row {
+      grid-template-columns: 1fr auto auto;
+      font-size: 11px;
+    }
   }
 </style>
 </head>
